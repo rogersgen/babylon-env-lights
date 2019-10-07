@@ -1,0 +1,39 @@
+  BABYLON.SceneLoader.Append(
+                        "assets/",
+                        "scene-BJS.babylon",
+                        scene,
+                        function () {
+                            /** LIGHTMAP ASSIGNATION PROCESS **/
+                            // lightmapped meshes list
+                            var lightmappedMeshes = ["wallz.000", "furnitures.000"];
+                            // we start cycling through them
+                            for (var i = 0; i < lightmappedMeshes.length; i++) {
+                                var currentMesh = scene.getMeshByName(lightmappedMeshes[i]);
+                                // lightmap loading
+                                var currentMeshLightmap = new BABYLON.Texture(
+                                    "assets/lightmaps/" + currentMesh.name + "_LM.jpg",
+                                    scene
+                                );
+                            }
+                        }
+                }
+
+
+
+
+
+                https://www.nothing-is-3d.com/article27/from-blender-to-babylonjs#tocBJSSideLightmaps
+
+
+
+
+                var lightmap = new BABYLON.Texture("lightmap.png", scene);
+                var material = new BABYLON.PBRMaterial("material", scene);
+                material.lightmapTexture = lightmap;
+
+
+
+
+                var bodylightmap = new BABYLON.Texture("lightmap.png", scene);
+                var bodyMaterial = new BABYLON.PBRMaterial("material", scene);
+                bodyMaterial.lightmapTexture = bodylightmap;

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>BabylonJS Demo</title>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src= "https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+
+
+        <style>
+            html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            
+        }
+            #canvas {
+                width:100%;
+                height:100%;
+
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById("canvas");
+                var engine = new BABYLON.Engine(canvas, true); 
+
+                //Creates the scene function. We'll be housing everything in here
+                var createScene = function() {
+                    var scene = new BABYLON.Scene(engine);
+
+                
+                   
+                    //----------------------------------------------------------------------------------------------------------------
+                    // Setting up the envirnoment without background
+                    scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environment.dds", scene);
+                    scene.imageProcessingConfiguration.exposure = 1;
+                    scene.imageProcessingConfiguration.contrast = 1;
+                    scene.clearColor = new BABYLON.Color3.White();
+                   
+
+                    // //set up for environment with background
+                    // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environment.dds", scene);
+                    // scene.imageProcessingConfiguration.exposure = 0.35;
+                    // scene.imageProcessingConfiguration.contrast = 2;
+                    // scene.forceIrradianceInFragment = true;
+                    
+                    // //Visulize your env map with a skybox. 
+                    // var currentSkybox = scene.createDefaultSkybox(hdrTexture, true);
+
+
+
+
+                    //----------------------------------------------------------------------------------------------------------------
+                    // Append glTF model to scene. The console log is to show that our file has successfully loaded. 
+                    BABYLON.SceneLoader.Append("scenes/hula-girl-demo/", "hula-girl-backUp.gltf", scene, function (scene) {
+
+
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //body light map
+                        var bodyLightMap = new BABYLON.Texture("scenes/hula-girl-demo/body_lightmap.png", scene);
+                        bodyLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        bodyLightMap.level = 3;
+                        var bodyMaterial = scene.getMaterialByID("body_material")
+                        bodyMaterial.lightmapTexture = bodyLightMap
+                        bodyMaterial.useLightmapAsShadowmap = true;
+
+                        console.log("body_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //base light map
+                        var baseLightMap = new BABYLON.Texture("scenes/hula-girl-demo/base_lightmap.png", scene);
+                        baseLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        baseLightMap.level = 70;
+                        var baseMaterial = scene.getMaterialByID("base_material")
+                        baseMaterial.lightmapTexture = baseLightMap
+                        baseMaterial.useLightmapAsShadowmap = true;
+                        console.log("base_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //clam light map
+                        var clamLightMap = new BABYLON.Texture("scenes/hula-girl-demo/clam_lightmap.png", scene);
+                        clamLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        clamLightMap.level = 5;
+                        var clamMaterial = scene.getMaterialByID("clam_material")
+                        clamMaterial.lightmapTexture = clamLightMap
+                        clamMaterial.useLightmapAsShadowmap = true;
+                        console.log("clam_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //frets light map
+                        var fretsLightMap = new BABYLON.Texture("scenes/hula-girl-demo/frets_lightmap.png", scene);
+                        fretsLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        fretsLightMap.level = 2;
+                        var fretsMaterial = scene.getMaterialByID("frets_material")
+                        fretsMaterial.lightmapTexture = fretsLightMap
+                        fretsMaterial.useLightmapAsShadowmap = false;
+                        console.log("frets_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //habiscus light map
+                        var habiscusLightMap = new BABYLON.Texture("scenes/hula-girl-demo/habiscus_lightmap.png", scene);
+                        habiscusLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        habiscusLightMap.level = 2;
+                        var habiscusMaterial = scene.getMaterialByID("habiscus_material")
+                        habiscusMaterial.lightmapTexture = habiscusLightMap
+                        habiscusMaterial.useLightmapAsShadowmap = false;
+                        console.log("habiscus_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //long_leaf light map
+                        var long_leafLightMap = new BABYLON.Texture("scenes/hula-girl-demo/long_leaf_lightmap.png", scene);
+                        long_leafLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        long_leafLightMap.level = 180;
+                        var long_leafMaterial = scene.getMaterialByID("long_leaf_material")
+                        long_leafMaterial.lightmapTexture = long_leafLightMap
+                        long_leafMaterial.useLightmapAsShadowmap = true;
+                        console.log("long_leaf_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //phong1 light map
+                        var phong1LightMap = new BABYLON.Texture("scenes/hula-girl-demo/phong1_lightmap.png", scene);
+                        phong1LightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        phong1LightMap.level = 2;
+                        var phong1Material = scene.getMaterialByID("phong1")
+                        phong1Material.lightmapTexture = phong1LightMap
+                        phong1Material.useLightmapAsShadowmap = false;
+                        console.log("phong1_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //plumeria light map
+                        var plumeriaLightMap = new BABYLON.Texture("scenes/hula-girl-demo/plumeria_lightmap.png", scene);
+                        plumeriaLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        plumeriaLightMap.level = 2;
+                        var plumeriaMaterial = scene.getMaterialByID("plumeria_material")
+                        plumeriaMaterial.lightmapTexture = plumeriaLightMap
+                        plumeriaMaterial.useLightmapAsShadowmap = false;
+                        console.log("plumeria_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //shirt light map
+                        var shirtLightMap = new BABYLON.Texture("scenes/hula-girl-demo/shirt_lightmap.png", scene);
+                        shirtLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        shirtLightMap.level = 10;
+                        var shirtMaterial = scene.getMaterialByID("shirt_material")
+                        shirtMaterial.lightmapTexture = shirtLightMap
+                        shirtMaterial.useLightmapAsShadowmap = true;
+                        console.log("shirt_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //starfish light map
+                        var starfishLightMap = new BABYLON.Texture("scenes/hula-girl-demo/starfish_lightmap.png", scene);
+                        starfishLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        starfishLightMap.level = 10;
+                        var starfishMaterial = scene.getMaterialByID("starfish_material")
+                        starfishMaterial.lightmapTexture = starfishLightMap
+                        starfishMaterial.useLightmapAsShadowmap = true;
+                        console.log("starfish_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //strap light map
+                        var strapLightMap = new BABYLON.Texture("scenes/hula-girl-demo/strap_lightmap.png", scene);
+                        strapLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        strapLightMap.level = 5;
+                        var strapMaterial = scene.getMaterialByID("strap_material")
+                        strapMaterial.lightmapTexture = strapLightMap
+                        strapMaterial.useLightmapAsShadowmap = true;
+                        console.log("strap_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //ukulele_fret_board light map
+                        var ukulele_fret_boardLightMap = new BABYLON.Texture("scenes/hula-girl-demo/fret_board_lightmap.png", scene);
+                        ukulele_fret_boardLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        ukulele_fret_boardLightMap.level = 2;
+                        var ukulele_fret_boardMaterial = scene.getMaterialByID("ukulele_fret_board")
+                        ukulele_fret_boardMaterial.lightmapTexture = ukulele_fret_boardLightMap
+                        ukulele_fret_boardMaterial.useLightmapAsShadowmap = false;
+                        console.log("ukulele_fret_board_lightmap loaded!")
+
+                        //--------------------------------------------------------------------------------------------------------
+                        //ukulele light map
+                        var ukuleleLightMap = new BABYLON.Texture("scenes/hula-girl-demo/ukulele_lightmap.png", scene);
+                        ukuleleLightMap.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+                        ukuleleLightMap.level = 3;
+                        var ukuleleMaterial = scene.getMaterialByID("ukulele_material")
+                        ukuleleMaterial.lightmapTexture = ukuleleLightMap
+                        ukuleleMaterial.useLightmapAsShadowmap = false;
+                        console.log("starfish_lightmap loaded!")
+
+               
+                        
+                    });
+
+
+                    scene.ambientColor = BABYLON.Color3.White();
+
+
+                    //-----------------------------------------------------------------------------------------------------------------
+                    //This pulls up a list of menus for you to make tweaks on which is pretty insane. 
+                    scene.debugLayer.show();
+                    scene.debugLayer.onPropertyChangedObservable.add((result) =>
+                    {			
+                            console.log(result);		
+                    });
+
+
+                    //-----------------------------------------------------------------------------------------------------------------
+                    //Setting up camera controls
+                    var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI/3, Math.PI / 4, 400, new BABYLON.Vector3(0,70,0), scene);
+                    camera.attachControl(canvas, true);
+
+
+
+
+
+
+                        return scene;
+
+                    }
+
+                    //Calls the scene function we just created
+                    var scene = createScene(); 
+                    engine.runRenderLoop(function(){
+                        scene.render();
+
+                    window.addEventListener("resize", function () {
+                    engine.resize();
+                    });
+
+
+
+                }); 
+
+            });
+        
+        </script>
+    </body>
+</html>

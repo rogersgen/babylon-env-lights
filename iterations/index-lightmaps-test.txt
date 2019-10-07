@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>BabylonJS Demo</title>
+        <script src ="https://cdn.babylonjs.com/babylon.max.js"></script>
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script> 
+
+        <style>
+            #canvas {
+                width:100%;
+                height:100%;
+
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById("canvas");
+                var engine = new BABYLON.Engine(canvas, true); 
+
+                //Creates the scene function. We'll be housing everything in here
+                var createScene = function() {
+
+                    //this is setting the background
+                    var scene = new BABYLON.Scene(engine);
+                    //This code prevents babylon from looking for .manifest file. Helpful when start adding in real models 
+                    engine.enableOfflineSupport = false; 
+
+                    // Environment Settings
+                    var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/parking.dds", scene);
+                    scene.imageProcessingConfiguration.exposure = 0.35;
+                    scene.imageProcessingConfiguration.contrast = 2;
+                    scene.forceIrradianceInFragment = true;
+                  
+                    // Skybox
+                    var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, scene);
+                    var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", scene);
+                    hdrSkyboxMaterial.backFaceCulling = false;
+                    scene.clearColor = new BABYLON.Color3.White();
+                    hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
+                    hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+                    hdrSkyboxMaterial.microSurface = 1.0;
+                    hdrSkyboxMaterial.disableLighting = false;
+                    hdrSkybox.material = hdrSkyboxMaterial;
+                    hdrSkybox.infiniteDistance = true;
+
+
+                     // Create meshes
+
+                    BABYLON.OBJFileLoader.MATERIAL_LOADING_FAILS_SILENTLY = false; 
+                    let mesh;
+                    let material;
+
+                    BABYLON.SceneLoader.ImportMesh("","models/","shoe-main.obj", scene, mainShoe);
+                    BABYLON.SceneLoader.ImportMesh("","models/","shoe-heel.obj", scene, heel);
+                    BABYLON.SceneLoader.ImportMesh("","models/","cleat-plate.obj", scene, cleatPlate);
+                   
+
+                   
+
+                    //here we are creating and assining materials. If you assign materials at the bottom, 
+                    //that will allow you to assign any material 
+
+                    var mainLightMapTexture = new BABYLON.Texture("textures/lightmaps/main-light-map.png");
+
+                    var glass = new BABYLON.PBRMaterial("glass", scene);
+                    glass.reflectionTexture = hdrTexture;
+                    glass.refractionTexture = hdrTexture;
+                    glass.linkRefractionWithTransparency = true;
+                    glass.indexOfRefraction = 0.52;
+                    glass.alpha = 0;
+                    glass.microSurface = 1;
+                    glass.reflectivityColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+                    glass.albedoColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+                    glass.forceIrradianceInFragment = true;
+                   
+                    var metal = new BABYLON.PBRMaterial("metal", scene);
+                    metal.reflectionTexture = hdrTexture;
+                    metal.microSurface = 0.96;
+                    metal.reflectivityColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+                    metal.albedoColor = new BABYLON.Color3(0.01, 0.01, 0.01);
+                    metal.forceIrradianceInFragment = true;
+                    
+                    var plastic = new BABYLON.PBRMaterial("plastic", scene);
+                    plastic.reflectionTexture = hdrTexture;
+                    plastic.environmentIntensity = 0.7;
+                    plastic.microSurface = 0.96;
+                    plastic.albedoColor = new BABYLON.Color3(1, 1, 1);
+                    plastic.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+                    plastic.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    plastic.roughness = 0.5; // set to 1 to only use it from the metallicRoughnessTexture
+                    plastic.useRoughnessFromMetallicTextureAlpha = true;
+                    plastic.useRoughnessFromMetallicTextureGreen = true;
+                    plastic.useMetallnessFromMetallicTextureBlue = true;
+                    plastic.forceIrradianceInFragment = true;
+                    plastic.lightMapTexture = mainLightMapTexture;
+                    plastic.useLightmapAsShadowmap = true;
+
+                    var lambert = new BABYLON.PBRMaterial("texture1", scene);
+                    lambert.reflectionTexture = hdrTexture;
+                    lambert.environmentIntensity = 1;
+                    lambert.microSurface = 0.96;
+                    lambert.albedoColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                    lambert.reflectivityColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+                    lambert.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    lambert.roughness = 1.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    lambert.useRoughnessFromMetallicTextureAlpha = true;
+                    lambert.useRoughnessFromMetallicTextureGreen = true;
+                    lambert.useMetallnessFromMetallicTextureBlue = true;
+                    lambert.forceIrradianceInFragment = true;
+
+                    var wood = new BABYLON.PBRMaterial("wood", scene);
+                    wood.reflectionTexture = hdrTexture;
+                    wood.environmentIntensity = 1;
+                    wood.specularIntensity = 0.3;
+                    wood.reflectivityTexture = new BABYLON.Texture("textures/reflectivity.png", scene);
+                    wood.useMicroSurfaceFromReflectivityMapAlpha = true;
+                    wood.albedoColor = BABYLON.Color3.White();
+                    wood.albedoTexture = new BABYLON.Texture("textures/albedo.png", scene);
+                    wood.forceIrradianceInFragment = true;
+
+
+
+
+
+
+                    //applies materials to imported meshes
+                    function mainShoe(meshes) {
+                        for (var _ii in meshes) {
+                            var mainShoe = meshes[_ii].clone();
+                            meshes[_ii].dispose();
+
+                            mainShoe.material = plastic;
+
+                         
+                        }
+                    }
+
+                    function heel(meshes) {
+                        for (var _ii in meshes) {
+                            var heel = meshes[_ii].clone();
+                            meshes[_ii].dispose();
+
+                            heel.material = lambert;
+
+                        }
+                    }
+
+                    function cleatPlate(meshes) {
+                        for (var _ii in meshes) {
+                            var cleatPlate = meshes[_ii].clone();
+                            meshes[_ii].dispose();
+
+                            cleatPlate.material = metal;
+                          
+                        }
+                    }
+
+                   
+
+                    //This is our arc camera. Different cameras have different params that
+                    //are attached to them. 
+                    var camera = new BABYLON.ArcRotateCamera("arcCamera", 
+                        BABYLON.Tools.ToRadians(45),
+                        BABYLON.Tools.ToRadians(45),
+                        10.0, mainShoe.position,scene);
+                    camera.attachControl(canvas,true);
+
+                    //End scene
+                    return scene;
+
+                }
+
+                //Calls the scene function we just created
+                var scene = createScene(); 
+                engine.runRenderLoop(function(){
+                    scene.render();
+
+
+
+                }); 
+
+            });
+        
+        </script>
+    </body>
+</html>

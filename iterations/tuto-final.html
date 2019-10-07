@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>From Blender to Babylon - standard workflow</title>
+    <meta charset="UTF-8">
+    <script src="js/babylon.js"></script>
+    <script src="js/pep.min.js"></script>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: tahoma, arial, sans-serif;
+            color: white;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" touch-action="none"></canvas>
+    <script type="text/javascript">
+        var canvas = document.getElementById("canvas");
+        var engine = new BABYLON.Engine(canvas, true);
+        var scene = new BABYLON.Scene(engine);
+        // ArcRotateCamera doc : http://doc.babylonjs.com/api/classes/babylon.arcrotatecamera#constructor
+        var arcRotCam = new BABYLON.ArcRotateCamera(
+            "arcRotateCamera", 5.5, 1.2, 3.75,
+            new BABYLON.Vector3(-0.8, 0.75, 0.8),
+            scene
+        );
+        arcRotCam.wheelPrecision = 200;
+        arcRotCam.pinchPrecision = 100;
+        arcRotCam.minZ = 0.005;
+        arcRotCam.panningSensibility = 2000;
+        arcRotCam.allowUpsideDown = false;
+        arcRotCam.checkCollisions = true;
+        arcRotCam.collisionRadius = new BABYLON.Vector3(0.1, 0.1, 0.1);
+        arcRotCam.lowerAlphaLimit = 4.5;
+        arcRotCam.upperAlphaLimit = 6.5;
+        arcRotCam.lowerBetaLimit = 0;
+        arcRotCam.upperBetaLimit = 1.8;
+        arcRotCam.upperRadiusLimit = 7;
+        arcRotCam.attachControl(canvas, false);
+
+        function assignLightmapOnMaterial(material, lightmap) {
+            material.lightmapTexture = lightmap;
+            // we want using UV2
+            material.lightmapTexture.coordinatesIndex = 1;
+            // our lightmap workflow is a darken one
+            material.useLightmapAsShadowmap = true;
+        }
+
+        //potentially we could use this set uo for mulitple objects that one light map. Could be best
+        //to combine two of our obj uv sets onto 1 map for this purpose 
+        // SceneLoader doc : http://doc.babylonjs.com/api/classes/babylon.sceneloader#append
+        BABYLON.SceneLoader.Append("assets/","scene-BJS.babylon",scene,
+            function () {
+                scene.clearColor = new BABYLON.Color3.FromHexString("#10111e");
+                /** LIGHTMAP ASSIGNATION PROCESS **/
+                scene.ambientColor = BABYLON.Color3.White();
+                // lightmapped meshes list
+                var lightmappedMeshes = ["wallz.000", "furnitures.000"];
+                // we start cycling through them
+                for (var i = 0; i < lightmappedMeshes.length; i++) {
+                    var currentMesh = scene.getMeshByName(lightmappedMeshes[i]);
+                    // lightmap loading
+                    var currentMeshLightmap = new BABYLON.Texture(
+                        "assets/lightmaps/" + currentMesh.name + "_LM.jpg",
+                        scene
+                    );
+                    currentMeshLightmap.name = currentMesh.name + "_LM";
+                    // we start cycling through each mesh material(s)
+                    if (!currentMesh.material) {
+                        // no material so skipping
+                        continue;
+                    } else if (!currentMesh.material.subMaterials) {
+                        // no subMaterials
+                        assignLightmapOnMaterial(currentMesh.material, currentMeshLightmap);
+                    } else if (currentMesh.material.subMaterials) {
+                        // we cycle through subMaterials
+                        for (var j = 0; j < currentMesh.material.subMaterials.length; j++) {
+                            assignLightmapOnMaterial(currentMesh.material.subMaterials[j], currentMeshLightmap);
+                        }
+                    }
+                }
+                /** END OF LIGHTMAP ASSIGNATION PROCESS **/
+                
+                /* mesh tweaking */
+
+                var collisions = scene.getMeshByName("_collisions");
+                collisions.isVisible = false;
+
+                /* material tweaking */
+
+                var lampFabric = scene.getMaterialByName("scene_BJS.lampFabric01.000");
+                lampFabric.diffuseColor = BABYLON.Color3.Black();
+                lampFabric.ambientColor = BABYLON.Color3.Black();
+                lampFabric.emissiveColor = new BABYLON.Color3(0.47, 0.28, 0.07); // in combination with emissiveTexture
+                lampFabric.useEmissiveAsIllumination = true; // we want light to burn
+
+                var lampBulb = scene.getMaterialByName("scene_BJS.lampBulb01.000");
+                lampBulb.emissiveColor = BABYLON.Color3.FromHexString("#ffffff");
+
+                var lampMetal01 = scene.getMaterialByName("scene_BJS.lampMetal01.000");
+                lampMetal01.diffuseColor = BABYLON.Color3.Black();
+                lampMetal01.ambientColor = BABYLON.Color3.FromHexString("#222222");
+                lampMetal01.specularColor = new BABYLON.Color3(0.88, 0.59, 0.41);
+                lampMetal01.specularPower = 80;
+
+                var holdout = scene.getMaterialByName("scene_BJS.holdout.000");
+                holdout.disableLighting = true;
+
+                var floor01 = scene.getMaterialByName("scene_BJS.floor01.000");
+                floor01.invertNormalMapX = true;
+
+                var books01 = scene.getMaterialByName("scene_BJS.books01.000");
+                books01.invertNormalMapX = true;
+
+                /* tools */
+                
+                //scene.debugLayer.show();
+            }
+        );
+
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+
+        // do not care code below, for tuto demo only
+        BABYLON.StandardMaterial.ReflectionTextureEnabled = false;
+    </script>
+</body>
+
+</html>
