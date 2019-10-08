@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>BabylonJS Demo</title>
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            
+        }
+            #canvas {
+                width:100%;
+                height:100%;
+
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById("canvas");
+                var engine = new BABYLON.Engine(canvas, true); 
+
+                var loadFileAsync = function (url) {
+                    return new Promise(function (resolve, reject) {
+                        BABYLON.Tools.LoadFile(url, function (data) {
+                            resolve(data);
+                        }, undefined, undefined, true, function (request, exception) {
+                            reject(exception);
+                        });
+                    });
+                };
+
+                //Creates the scene function. We'll be housing everything in here
+                var createScene = async function() {
+
+
+                    //----------------------------------------------------------------------------------------
+                    //this is setting the background
+                    var scene = new BABYLON.Scene(engine);
+                    scene.useRightHandedSystem = true;
+                    //This code prevents babylon from looking for .manifest file. Helpful when start adding in real models 
+                    engine.enableOfflineSupport = false; 
+
+                    // Environment Settings
+                    var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("environment.dds", scene);
+                    scene.imageProcessingConfiguration.exposure = 1.2;
+                    scene.imageProcessingConfiguration.contrast = 1;
+                  
+                    // Skybox
+                    var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, scene);
+                    var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", scene);
+                    hdrSkyboxMaterial.backFaceCulling = false;
+                    hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
+                    hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+                    hdrSkyboxMaterial.microSurface = 1.0;
+                    hdrSkyboxMaterial.disableLighting = false;
+                    hdrSkybox.material = hdrSkyboxMaterial;
+                    hdrSkybox.infiniteDistance = true;
+                    scene.clearColor = new BABYLON.Color3.White();
+
+
+                   
+
+                    //----------------------------------------------------------------------------------------
+                    //here we are creating and assining materials. If you assign materials at the bottom, 
+                    //that will allow you to assign any material     
+                   
+                    var metal = new BABYLON.PBRMaterial("metal", scene);
+                    metal.reflectionTexture = hdrTexture;
+                    metal.microSurface = 0.96;
+                    metal.reflectivityColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+                    metal.albedoColor = new BABYLON.Color3(0.01, 0.01, 0.01);
+                    metal.forceIrradianceInFragment = true;
+                    
+                    var plastic = new BABYLON.PBRMaterial("plastic", scene);
+                    plastic.reflectionTexture = hdrTexture;
+                    plastic.environmentIntensity = 0.7;
+                    plastic.microSurface = 0.96;
+                    plastic.albedoColor = new BABYLON.Color3(1, 1, 1);
+                    plastic.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+                    plastic.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    plastic.roughness = 0.5; // set to 1 to only use it from the metallicRoughnessTexture
+                    plastic.useRoughnessFromMetallicTextureAlpha = true;
+                    plastic.useRoughnessFromMetallicTextureGreen = true;
+                    plastic.useMetallnessFromMetallicTextureBlue = true;
+                    plastic.forceIrradianceInFragment = true;
+
+                    var lambert = new BABYLON.PBRMaterial("texture1", scene);
+                    lambert.reflectionTexture = hdrTexture;
+                    lambert.environmentIntensity = 1;
+                    lambert.microSurface = 0.96;
+                    lambert.albedoColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                    lambert.reflectivityColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+                    lambert.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    lambert.roughness = 1.0; // set to 1 to only use it from the metallicRoughnessTexture
+                    lambert.useRoughnessFromMetallicTextureAlpha = true;
+                    lambert.useRoughnessFromMetallicTextureGreen = true;
+                    lambert.useMetallnessFromMetallicTextureBlue = true;
+                    lambert.forceIrradianceInFragment = true;
+
+
+                    //----------------------------------------------------------------------------------------
+                    // Create meshes
+                    BABYLON.DracoCompression.Configuration = {
+                        decoder: {
+                            wasmUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.js",
+                            wasmBinaryUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.wasm",
+                            fallbackUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_wasm_wrapper.js",
+                        }
+                    };
+
+                   
+                    var dracoCompression = new BABYLON.DracoCompression();
+                    var url = "cleat-plate.drc";
+                    return loadFileAsync(url).then(function (data) {
+                        return dracoCompression.decodeMeshAsync(data);
+                    }).then(function (vertexData) {
+                        var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                        var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData);
+                        geometry.applyToMesh(mesh);
+
+                        mesh.material = new BABYLON.PBRMaterial("material", scene);
+                        mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+                        mesh.material.metallic = 0;
+                        return scene;
+                 });
+
+
+
+                    // BABYLON.Tools.LoadFile("cleat-plate.drc", async function (data) {
+
+                    // var attributes = {
+                    //     // [BABYLON.VertexBuffer.UVKind]: 0,
+                    //     // [BABYLON.VertexBuffer.NormalKind]: 1,
+                    //     // [BABYLON.VertexBuffer.TangentKind]: 2,
+                    //     [BABYLON.VertexBuffer.PositionKind]: 3
+                    // };
+
+                    // var vertexData = await dracoCompression.decodeMeshAsync(data, attributes);
+                    // var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                    // var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+
+                
+                    // });
+
+                }
+
+                var scene = createScene(); 
+                    engine.runRenderLoop(function(){
+                        scene.render();
+
+                    window.addEventListener("resize", function () {
+                    engine.resize();
+                    });
+
+                }); 
+
+
+            });
+        
+        </script>
+    </body>
+</html>

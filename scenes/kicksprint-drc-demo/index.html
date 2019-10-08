@@ -2,188 +2,102 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>BabylonJS Demo</title>
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/ammo.js"></script>
         <script src="https://preview.babylonjs.com/cannon.js"></script>
         <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
         <script src="https://preview.babylonjs.com/babylon.js"></script>
         <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-        <script src= "https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-
-        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
         <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
 
         <style>
             html, body {
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            
-        }
-            #canvas {
-                width:100%;
-                height:100%;
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
 
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
             }
         </style>
     </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
 
-    <body>
-        <canvas id="canvas"></canvas>
-
-        <script>
-            window.addEventListener("DOMContentLoaded", function() {
-                var canvas = document.getElementById("canvas");
-                var engine = new BABYLON.Engine(canvas, true); 
-
-                //Creates the scene function. We'll be housing everything in here
-                var createScene = function() {
-
-
-
-                    //----------------------------------------------------------------------------------------
-                    //draco loader 
-                    BABYLON.DracoCompression.Configuration = {
-                        decoder: {
-                            wasmUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.js",
-                            wasmBinaryUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.wasm",
-                            fallbackUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_wasm_wrapper.js",
-                        }
-                    };
-
-
-                    //----------------------------------------------------------------------------------------
-                    //this is setting the background
-                    var scene = new BABYLON.Scene(engine);
-                    //This code prevents babylon from looking for .manifest file. Helpful when start adding in real models 
-                    engine.enableOfflineSupport = false; 
-
-                    // Environment Settings
-                    var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("environment.dds", scene);
-                    scene.imageProcessingConfiguration.exposure = 1.2;
-                    scene.imageProcessingConfiguration.contrast = 1;
-                  
-                    // Skybox
-                    var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, scene);
-                    var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", scene);
-                    hdrSkyboxMaterial.backFaceCulling = false;
-                    hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
-                    hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-                    hdrSkyboxMaterial.microSurface = 1.0;
-                    hdrSkyboxMaterial.disableLighting = false;
-                    hdrSkybox.material = hdrSkyboxMaterial;
-                    hdrSkybox.infiniteDistance = true;
-                    scene.clearColor = new BABYLON.Color3.White();
-
-
-
-
-
-                    //----------------------------------------------------------------------------------------
-                    // Create meshes
-
-                    BABYLON.OBJFileLoader.MATERIAL_LOADING_FAILS_SILENTLY = false; 
-                    let mesh;
-                    let material;
-
-                    BABYLON.SceneLoader.ImportMesh("","","shoe-main.drc", scene, mainShoe);
-                    BABYLON.SceneLoader.ImportMesh("","","cleat-plate.drc", scene, cleatPlate);
-
-                   
-                   
-
-                   
-                    //----------------------------------------------------------------------------------------
-                    //here we are creating and assining materials. If you assign materials at the bottom, 
-                    //that will allow you to assign any material     
-                   
-                    var metal = new BABYLON.PBRMaterial("metal", scene);
-                    metal.reflectionTexture = hdrTexture;
-                    metal.microSurface = 0.96;
-                    metal.reflectivityColor = new BABYLON.Color3(0.85, 0.85, 0.85);
-                    metal.albedoColor = new BABYLON.Color3(0.01, 0.01, 0.01);
-                    metal.forceIrradianceInFragment = true;
-                    
-                    var plastic = new BABYLON.PBRMaterial("plastic", scene);
-                    plastic.reflectionTexture = hdrTexture;
-                    plastic.environmentIntensity = 0.7;
-                    plastic.microSurface = 0.96;
-                    plastic.albedoColor = new BABYLON.Color3(1, 1, 1);
-                    plastic.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
-                    plastic.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
-                    plastic.roughness = 0.5; // set to 1 to only use it from the metallicRoughnessTexture
-                    plastic.useRoughnessFromMetallicTextureAlpha = true;
-                    plastic.useRoughnessFromMetallicTextureGreen = true;
-                    plastic.useMetallnessFromMetallicTextureBlue = true;
-                    plastic.forceIrradianceInFragment = true;
-
-                    var lambert = new BABYLON.PBRMaterial("texture1", scene);
-                    lambert.reflectionTexture = hdrTexture;
-                    lambert.environmentIntensity = 1;
-                    lambert.microSurface = 0.96;
-                    lambert.albedoColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-                    lambert.reflectivityColor = new BABYLON.Color3(0.0, 0.0, 0.0);
-                    lambert.metallic = 0.0; // set to 1 to only use it from the metallicRoughnessTexture
-                    lambert.roughness = 1.0; // set to 1 to only use it from the metallicRoughnessTexture
-                    lambert.useRoughnessFromMetallicTextureAlpha = true;
-                    lambert.useRoughnessFromMetallicTextureGreen = true;
-                    lambert.useMetallnessFromMetallicTextureBlue = true;
-                    lambert.forceIrradianceInFragment = true;
-
-
-
-                    //----------------------------------------------------------------------------------------
-                    //applies materials to imported meshes
-                    function mainShoe(meshes) {
-                        for (var _ii in meshes) {
-                            var mainShoe = meshes[_ii].clone();
-                            meshes[_ii].dispose();
-                            mainShoe.material = plastic;
-                            mainShoe.setEnabled(true);                    
-                        }
-                    }
-
-
-
-                    function cleatPlate(meshes) {
-                        for (var _ii in meshes) {
-                            var cleatPlate = meshes[_ii].clone();
-                            meshes[_ii].dispose();
-                            cleatPlate.material = metal;
-                            cleatPlate.setEnabled(true); 
-                        }
-                    }
-
-                   
-
-                    //----------------------------------------------------------------------------------------
-                    //This is our arc camera. Different cameras have different params that
-                    //are attached to them. 
-                    var camera = new BABYLON.ArcRotateCamera("arcCamera", 
-                        BABYLON.Tools.ToRadians(45),
-                        BABYLON.Tools.ToRadians(45),
-                        10.0, mainShoe.position,scene);
-                    camera.attachControl(canvas,true);
-
-                    //End scene
-                    return scene;
-
-                }
-
-                //Calls the scene function we just created
-                var scene = createScene(); 
-                engine.runRenderLoop(function(){
-                    scene.render();
-
-
-
-                }); 
-
+        var loadFileAsync = function (url) {
+            return new Promise(function (resolve, reject) {
+                BABYLON.Tools.LoadFile(url, function (data) {
+                    resolve(data);
+                }, undefined, undefined, true, function (request, exception) {
+                    reject(exception);
+                });
             });
+        };
         
-        </script>
-    </body>
+        var createScene = async function () {
+            var scene = new BABYLON.Scene(engine);
+            scene.useRightHandedSystem = true;
+        
+            BABYLON.DracoCompression.Configuration = {
+                decoder: {
+                    wasmUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.js",
+                    wasmBinaryUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.wasm",
+                    fallbackUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_wasm_wrapper.js",
+                }
+            };
+            
+            var dracoCompression = new BABYLON.DracoCompression(1);
+            var url = "cleat-plate.drc";
+            return loadFileAsync(url).then(function (data) {
+                return dracoCompression.decodeMeshAsync(data);
+            }).then(function (vertexData) {
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData);
+                geometry.applyToMesh(mesh);
+        
+                mesh.material = new BABYLON.PBRMaterial("material", scene);
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+                mesh.material.metallic = 0;
+        
+                scene.createDefaultCameraOrLight(true, true, true);
+                scene.activeCamera.alpha += Math.PI;
+                return scene;
+            });
+        };
+__createScene = createScene;
+        
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
 </html>
