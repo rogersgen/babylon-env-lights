@@ -48,12 +48,16 @@
             scene.useRightHandedSystem = true;
 
 
-
             //----------------------------------------------------------------------------------------------------------------
             // Setting up the envirnoment without background
-            var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("environment-quarter.env", scene);
-            scene.imageProcessingConfiguration.exposure = 1;
+            var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("kloofendalPartlyCloudyHDR.dds", scene);
+            scene.imageProcessingConfiguration.exposure = 0.49;
             scene.imageProcessingConfiguration.contrast = 1;
+
+
+            // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("environment-quarter.env", scene);
+            // scene.imageProcessingConfiguration.exposure = 0.88;
+            // scene.imageProcessingConfiguration.contrast = 1;
         
             // Skybox
             var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, scene);
@@ -70,8 +74,262 @@
 
 
 
+
             //----------------------------------------------------------------------------------------------------------------
-            // The mess that is draco
+            //lets create some materials before we load in any meshes 
+
+            var metal = new BABYLON.PBRMaterial("metal", scene);
+            metal.reflectionTexture = hdrTexture;
+            metal.microSurface = 0.96;
+            metal.reflectivityColor = new BABYLON.Color3(0.929, 0.671, 0.239);
+            metal.albedoColor = new BABYLON.Color3(0.529, 0.435, 0.204);
+            metal.forceIrradianceInFragment = true;
+            metal.ambientTexture = new BABYLON.Texture("textures/plate-occ.png", scene);
+
+            var metalGrid = new BABYLON.PBRMaterial("metalGrid", scene);
+            metalGrid.reflectionTexture = hdrTexture;
+            metalGrid.microSurface = 0.96;
+            metalGrid.reflectivityColor = new BABYLON.Color3(0.929, 0.671, 0.239);
+            metalGrid.albedoColor = new BABYLON.Color3(0.529, 0.435, 0.204);
+            metalGrid.forceIrradianceInFragment = true;
+            metalGrid.bumpTexture = new BABYLON.Texture("textures/grid-normal.png", scene);
+            metalGrid.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            metalGrid.bumpTexture.uScale = 25.0;
+            metalGrid.bumpTexture.vScale = 25.0;
+            metalGrid.bumpTexture.level = 1.5;
+            metalGrid.ambientTexture = new BABYLON.Texture("textures/plate-occ.png", scene);
+
+            var plastic = new BABYLON.PBRMaterial("plastic", scene);
+            plastic.reflectionTexture = hdrTexture;
+            plastic.environmentIntensity =1;
+            plastic.microSurface = 0.96;
+            plastic.albedoColor = new BABYLON.Color3(1, 1, 1);
+            plastic.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            plastic.metallic = 0.0; 
+            plastic.roughness = 0.6; 
+            plastic.useRoughnessFromMetallicTextureAlpha = true;
+            plastic.useRoughnessFromMetallicTextureGreen = true;
+            plastic.useMetallnessFromMetallicTextureBlue = true;
+            plastic.forceIrradianceInFragment = true;
+
+            var upperMaterial = new BABYLON.PBRMaterial("upperMaterial", scene);
+            upperMaterial.reflectionTexture = hdrTexture;
+            upperMaterial.environmentIntensity =1;
+            upperMaterial.microSurface = 0.96;
+            upperMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            upperMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            upperMaterial.metallic = 0.0; 
+            upperMaterial.roughness = 0.6; 
+            upperMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            upperMaterial.useRoughnessFromMetallicTextureGreen = true;
+            upperMaterial.useMetallnessFromMetallicTextureBlue = true;
+            upperMaterial.forceIrradianceInFragment = true;
+            upperMaterial.bumpTexture = new BABYLON.Texture("textures/button-normal.png", scene);
+            upperMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            upperMaterial.bumpTexture.uScale = 80.0;
+            upperMaterial.bumpTexture.vScale = 80.0;
+            upperMaterial.bumpTexture.level = 1.5;
+            upperMaterial.ambientTexture = new BABYLON.Texture("textures/vamp-occ.png", scene);
+
+            var innerMaterial = new BABYLON.PBRMaterial("innerMaterial", scene);
+            innerMaterial.reflectionTexture = hdrTexture;
+            innerMaterial.environmentIntensity =1;
+            innerMaterial.microSurface = 0.96;
+            innerMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            innerMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            innerMaterial.metallic = 0.0; 
+            innerMaterial.roughness = 0.3; 
+            innerMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            innerMaterial.useRoughnessFromMetallicTextureGreen = true;
+            innerMaterial.useMetallnessFromMetallicTextureBlue = true;
+            innerMaterial.forceIrradianceInFragment = true;
+            innerMaterial.bumpTexture = new BABYLON.Texture("textures/square-128.png", scene);
+            innerMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            innerMaterial.bumpTexture.uScale = 80.0;
+            innerMaterial.bumpTexture.vScale = 80.0;
+            innerMaterial.bumpTexture.level = 1;
+            innerMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var logMaterial = new BABYLON.PBRMaterial("logMaterial", scene);
+            logMaterial.reflectionTexture = hdrTexture;
+            logMaterial.environmentIntensity =1;
+            logMaterial.microSurface = 0.96;
+            logMaterial.albedoColor = new BABYLON.Color3(0.047, 0.051, 0.063);
+            logMaterial.roughness = 0.5; 
+            logMaterial.forceIrradianceInFragment = true;
+            logMaterial.bumpTexture = new BABYLON.Texture("textures/grain-normal.png", scene);
+            logMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            logMaterial.bumpTexture.uScale = 80.0;
+            logMaterial.bumpTexture.vScale = 80.0;
+            logMaterial.bumpTexture.level = 1;
+            logMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var logoMaterial = new BABYLON.PBRMaterial("logoMaterial", scene);
+            logoMaterial.reflectionTexture = hdrTexture;
+            logoMaterial.environmentIntensity =1;
+            logoMaterial.microSurface = 0.96;
+            logoMaterial.albedoColor = new BABYLON.Color3(0.612, 0.612, 0.576);
+            logoMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            logoMaterial.metallic = 0.0; 
+            logoMaterial.roughness = 0.4; 
+            logoMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            logoMaterial.useRoughnessFromMetallicTextureGreen = true;
+            logoMaterial.useMetallnessFromMetallicTextureBlue = true;
+            logoMaterial.forceIrradianceInFragment = true;
+            logoMaterial.bumpTexture = new BABYLON.Texture("textures/button-normal.png", scene);
+            logoMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            logoMaterial.bumpTexture.uScale = 80.0;
+            logoMaterial.bumpTexture.vScale = 80.0;
+            logoMaterial.bumpTexture.level = 1.5;
+
+            var logoOutlineMaterial = new BABYLON.PBRMaterial("logoOutlineMaterial", scene);
+            logoOutlineMaterial.reflectionTexture = hdrTexture;
+            logoOutlineMaterial.environmentIntensity =1;
+            logoOutlineMaterial.microSurface = 0.96;
+            logoOutlineMaterial.albedoColor = new BABYLON.Color3(0.922, 0.922, 0.922);
+            logoOutlineMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            logoOutlineMaterial.metallic = 0.0; 
+            logoOutlineMaterial.roughness = 0.35; 
+            logoOutlineMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            logoOutlineMaterial.useRoughnessFromMetallicTextureGreen = true;
+            logoOutlineMaterial.useMetallnessFromMetallicTextureBlue = true;
+            logoOutlineMaterial.forceIrradianceInFragment = true;
+            logoOutlineMaterial.bumpTexture = new BABYLON.Texture("textures/button-normal.png", scene);
+            logoOutlineMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            logoOutlineMaterial.bumpTexture.uScale = 80.0;
+            logoOutlineMaterial.bumpTexture.vScale = 80.0;
+            logoOutlineMaterial.bumpTexture.level = 1.5;
+
+            var feltMaterial = new BABYLON.PBRMaterial("feltMaterial", scene);
+            feltMaterial.reflectionTexture = hdrTexture;
+            feltMaterial.environmentIntensity =1;
+            feltMaterial.microSurface = 0.96;
+            feltMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            feltMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            feltMaterial.metallic = 0.0; 
+            feltMaterial.roughness = 0.8; 
+            feltMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            feltMaterial.useRoughnessFromMetallicTextureGreen = true;
+            feltMaterial.useMetallnessFromMetallicTextureBlue = true;
+            feltMaterial.forceIrradianceInFragment = true;
+            feltMaterial.bumpTexture = new BABYLON.Texture("textures/felt-normal.png", scene);
+            feltMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            feltMaterial.bumpTexture.uScale = 20.0;
+            feltMaterial.bumpTexture.vScale = 20.0;
+            feltMaterial.bumpTexture.level = 1.5;
+            feltMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var foxingMaterial = new BABYLON.PBRMaterial("foxingMaterial", scene);
+            foxingMaterial.reflectionTexture = hdrTexture;
+            foxingMaterial.environmentIntensity =1;
+            foxingMaterial.microSurface = 0.96;
+            foxingMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            foxingMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            foxingMaterial.metallic = 0.0; 
+            foxingMaterial.roughness = 0.8; 
+            foxingMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            foxingMaterial.useRoughnessFromMetallicTextureGreen = true;
+            foxingMaterial.useMetallnessFromMetallicTextureBlue = true;
+            foxingMaterial.forceIrradianceInFragment = true;
+            foxingMaterial.bumpTexture = new BABYLON.Texture("textures/foxing-normal.png", scene);
+            foxingMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            foxingMaterial.bumpTexture.uScale = 70.0;
+            foxingMaterial.bumpTexture.vScale = 70.0;
+            foxingMaterial.bumpTexture.level = 1;
+            foxingMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var laceMaterial = new BABYLON.PBRMaterial("laceMaterial", scene);
+            laceMaterial.reflectionTexture = hdrTexture;
+            laceMaterial.environmentIntensity =1;
+            laceMaterial.microSurface = 0.96;
+            laceMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            laceMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            laceMaterial.metallic = 0.0; 
+            laceMaterial.roughness = 0.8; 
+            laceMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            laceMaterial.useRoughnessFromMetallicTextureGreen = true;
+            laceMaterial.useMetallnessFromMetallicTextureBlue = true;
+            laceMaterial.forceIrradianceInFragment = true;
+            laceMaterial.bumpTexture = new BABYLON.Texture("textures/lace-normal.png", scene);
+            laceMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            laceMaterial.bumpTexture.uScale = 5.0;
+            laceMaterial.bumpTexture.vScale = 5.0;
+            laceMaterial.bumpTexture.level = 1.5;
+            laceMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var blackMaterial = new BABYLON.PBRMaterial("blackMaterial", scene);
+            blackMaterial.reflectionTexture = hdrTexture;
+            blackMaterial.environmentIntensity =1;
+            blackMaterial.microSurface = 0.96;
+            blackMaterial.albedoColor = new BABYLON.Color3(0, 0, 0);
+            blackMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            blackMaterial.metallic = 0.0; 
+            blackMaterial.roughness = 1; 
+            blackMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            blackMaterial.useRoughnessFromMetallicTextureGreen = true;
+            blackMaterial.useMetallnessFromMetallicTextureBlue = true;
+            blackMaterial.forceIrradianceInFragment = true;
+            blackMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var darkGrayMaterial = new BABYLON.PBRMaterial("darkGrayMaterial", scene);
+            darkGrayMaterial.reflectionTexture = hdrTexture;
+            darkGrayMaterial.environmentIntensity =1;
+            darkGrayMaterial.microSurface = 0.96;
+            darkGrayMaterial.albedoColor = new BABYLON.Color3(0.027, 0.027, 0.027);
+            darkGrayMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            darkGrayMaterial.metallic = 0.0; 
+            darkGrayMaterial.roughness = 0.85; 
+            darkGrayMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            darkGrayMaterial.useRoughnessFromMetallicTextureGreen = true;
+            darkGrayMaterial.useMetallnessFromMetallicTextureBlue = true;
+            darkGrayMaterial.forceIrradianceInFragment = true;
+            darkGrayMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var liningMaterial = new BABYLON.PBRMaterial("liningMaterial", scene);
+            liningMaterial.reflectionTexture = hdrTexture;
+            liningMaterial.environmentIntensity =1;
+            liningMaterial.microSurface = 0.96;
+            liningMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            liningMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            liningMaterial.metallic = 0.0; 
+            liningMaterial.roughness = 0.5; 
+            liningMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            liningMaterial.useRoughnessFromMetallicTextureGreen = true;
+            liningMaterial.useMetallnessFromMetallicTextureBlue = true;
+            liningMaterial.forceIrradianceInFragment = true;
+            liningMaterial.bumpTexture = new BABYLON.Texture("textures/liner-normal.png", scene);
+            liningMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            liningMaterial.bumpTexture.uScale = 20.0;
+            liningMaterial.bumpTexture.vScale = 20.0;
+            liningMaterial.bumpTexture.level = 10;
+            liningMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+
+            var tongueCompMaterial = new BABYLON.PBRMaterial("tongueCompMaterial", scene);
+            tongueCompMaterial.reflectionTexture = hdrTexture;
+            tongueCompMaterial.environmentIntensity =1;
+            tongueCompMaterial.microSurface = 0.96;
+            tongueCompMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+            tongueCompMaterial.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
+            tongueCompMaterial.metallic = 0.0; 
+            tongueCompMaterial.roughness = 0.5; 
+            tongueCompMaterial.useRoughnessFromMetallicTextureAlpha = true;
+            tongueCompMaterial.useRoughnessFromMetallicTextureGreen = true;
+            tongueCompMaterial.useMetallnessFromMetallicTextureBlue = true;
+            tongueCompMaterial.forceIrradianceInFragment = true;
+            tongueCompMaterial.bumpTexture = new BABYLON.Texture("textures/comp-normal.png", scene);
+            tongueCompMaterial.bumpTexture.vScale = -1; //for whatever reason this line of code allows our lightmap to laod in correctly
+            tongueCompMaterial.bumpTexture.uScale = 55.0;
+            tongueCompMaterial.bumpTexture.vScale = 55.0;
+            tongueCompMaterial.bumpTexture.level = 1;
+            tongueCompMaterial.opacityTexture = new BABYLON.Texture("textures/main-alpha.png", scene);
+            tongueCompMaterial.ambientTexture = new BABYLON.Texture("textures/main-occ.png", scene);
+           
+
+           
+
+
+            //----------------------------------------------------------------------------------------------------------------
+            // Loads draco scripts
             BABYLON.DracoCompression.Configuration = {
                 decoder: {
                     wasmUrl: "https://cdn.jsdelivr.net/gh/google/draco/javascript/draco_decoder.js",
@@ -80,63 +338,372 @@
                 }
             };
         
+
+
+
+
+
             //--------------------------------------------------------------------------------
-            //Loading in first mesh
-            BABYLON.Tools.LoadFile("cleat-plate.drc", async function (data) {
+            //Start loading in different meshes 
+
+
+            // exterior-strips 
+            BABYLON.Tools.LoadFile("models/exterior-strips.drc", async function (data) {
                 var dracoCompression = new BABYLON.DracoCompression();
-    
                 var vertexData = await dracoCompression.decodeMeshAsync(data);
                 var mesh = new BABYLON.Mesh("dracoMesh", scene);
                 var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
-        
-                var metal = new BABYLON.PBRMaterial("metal", scene);
-                metal.reflectionTexture = hdrTexture;
-                metal.microSurface = 0.96;
-                metal.reflectivityColor = new BABYLON.Color3(0.85, 0.85, 0.85);
-                metal.albedoColor = new BABYLON.Color3(0.01, 0.01, 0.01);
-                metal.forceIrradianceInFragment = true;
                
+                mesh.material = liningMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
 
+
+    
+            // vamp-interior 
+            BABYLON.Tools.LoadFile("models/vamp-interior.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = innerMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+
+            // tongue-upper 
+            BABYLON.Tools.LoadFile("models/tongue-upper.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = upperMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+
+            // inner-strips 
+            BABYLON.Tools.LoadFile("models/inner-strips.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = liningMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // spikes 
+            BABYLON.Tools.LoadFile("models/spikes.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
                 mesh.material = metal;
                 mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
         
             }, undefined, undefined, true);
-
-
             //--------------------------------------------------------------------------------
-            //Loading in second mesh
-            BABYLON.Tools.LoadFile("shoe-main.drc", async function (data) {
+
+            // laces 
+            BABYLON.Tools.LoadFile("models/laces.drc", async function (data) {
                 var dracoCompression = new BABYLON.DracoCompression();
-        
                 var vertexData = await dracoCompression.decodeMeshAsync(data);
                 var mesh = new BABYLON.Mesh("dracoMesh", scene);
                 var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
-        
-                var plastic = new BABYLON.PBRMaterial("plastic", scene);
-                plastic.reflectionTexture = hdrTexture;
-                plastic.environmentIntensity =1;
-                plastic.microSurface = 0.96;
-                plastic.albedoColor = new BABYLON.Color3(1, 1, 1);
-                plastic.reflectivityColor = new BABYLON.Color3(0.003, 0.003, 0.003); 
-                plastic.metallic = 0.0; 
-                plastic.roughness = 0.5; 
-                plastic.useRoughnessFromMetallicTextureAlpha = true;
-                plastic.useRoughnessFromMetallicTextureGreen = true;
-                plastic.useMetallnessFromMetallicTextureBlue = true;
-                plastic.forceIrradianceInFragment = true;
                
+                mesh.material = laceMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
 
+            // heel-counter 
+            BABYLON.Tools.LoadFile("models/heel-counter.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = upperMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // heel-counter-interior 
+            BABYLON.Tools.LoadFile("models/heel-counter-interior.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = foxingMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // heel-counter-logo 
+            BABYLON.Tools.LoadFile("models/heel-counter-logo.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logoMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // outsole-back 
+            BABYLON.Tools.LoadFile("models/outsole-back.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = darkGrayMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // outsole-front 
+            BABYLON.Tools.LoadFile("models/outsole-front-solar.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = metal;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // outsole-front-grid 
+            BABYLON.Tools.LoadFile("models/outsole-front-solar-grid.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = metalGrid;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // sock-liner 
+            BABYLON.Tools.LoadFile("models/sock-liner.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = blackMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // stitching 
+            BABYLON.Tools.LoadFile("models/stitching.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
                 mesh.material = plastic;
                 mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
         
             }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // tongue 
+            BABYLON.Tools.LoadFile("models/tongue-felt.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = feltMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
         
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // tongue-strip 
+            BABYLON.Tools.LoadFile("models/tongue-strip.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = liningMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // tongue-upper-1 
+            BABYLON.Tools.LoadFile("models/tongue-upper-1.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = tongueCompMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // tongue-logo 
+            BABYLON.Tools.LoadFile("models/tongue-logo.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logoMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // toe-logo 
+            BABYLON.Tools.LoadFile("models/toe-logo.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logoMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // toe-log 
+            BABYLON.Tools.LoadFile("models/toe-log.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // vamp-exterior 
+            BABYLON.Tools.LoadFile("models/vamp-exterior.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = upperMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // collar-lining 
+            BABYLON.Tools.LoadFile("models/collar-lining.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = liningMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // exterior-strips-sides 
+            BABYLON.Tools.LoadFile("models/exterior-strips-sides.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = liningMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // toe-logo-outline 
+            BABYLON.Tools.LoadFile("models/toe-logo-outline.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logoOutlineMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+
+            // heel-logo-outline 
+            BABYLON.Tools.LoadFile("models/heel-logo-outline.drc", async function (data) {
+                var dracoCompression = new BABYLON.DracoCompression();
+                var vertexData = await dracoCompression.decodeMeshAsync(data);
+                var mesh = new BABYLON.Mesh("dracoMesh", scene);
+                var geometry = new BABYLON.Geometry("dracoGeometry", scene, vertexData, undefined, mesh);
+               
+                mesh.material = logoOutlineMaterial;
+                mesh.material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
+        
+            }, undefined, undefined, true);
+            //--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
+            // End model list 
+
+
+
+
+
+
+
+
+
+
+            //--------------------------------------------------------------------------------
+            //Camera settings
             var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI/3, Math.PI / 4, 40, new BABYLON.Vector3(0,7,0), scene);
-                    camera.attachControl(canvas, true);
-        
-            return scene;
+            camera.attachControl(canvas, true);
+            
+
+            return scene;           
         };
-__createScene = delayCreateScene;
+
+
+
+
+
+        //--------------------------------------------------------------------------------
+        //End scene nonsense 
+        __createScene = delayCreateScene;
         
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         var scene = delayCreateScene();
@@ -151,6 +718,10 @@ __createScene = delayCreateScene;
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
+
+
+
     </script>
 </body>
 </html>
