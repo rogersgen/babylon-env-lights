@@ -693,6 +693,10 @@
             var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI/3, Math.PI / 4, 40, new BABYLON.Vector3(0,7,0), scene);
             camera.attachControl(canvas, true);
             
+            //hdrTexture.parent = camera;
+           // hdrSkybox.parent = camera; 
+
+
 
             return scene;           
         };
